@@ -20,6 +20,8 @@ typedef struct CourseList {
 CourseList   createCourseList(void);
 void         addCourseResult(CourseList *list, CourseResult cr);
 CourseResult getCourseResult(CourseList *list, int index);
+void         editCourseResultAt(CourseList *list, int index, CourseResult cr); /* 1-based index */
+void         deleteCourseResultAt(CourseList *list, int index);               /* 1-based index */
 void         viewCourseList(CourseList *list);
 void         freeCourseList(CourseList *list);
 

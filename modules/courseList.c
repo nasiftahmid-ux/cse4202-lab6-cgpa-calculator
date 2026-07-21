@@ -31,6 +31,27 @@ CourseResult getCourseResult(CourseList *list, int index) {
     return list->items[index];
 }
 
+/* 1-based index, matching how items are numbered when displayed to the user. */
+void editCourseResultAt(CourseList *list, int index, CourseResult cr) {
+    if (index < 1 || index > list->count) {
+        fprintf(stderr, "Error: invalid course number %d\n", index);
+        return;
+    }
+    list->items[index - 1] = cr;
+}
+
+/* 1-based index. Shifts later items down by one slot to close the gap. */
+void deleteCourseResultAt(CourseList *list, int index) {
+    if (index < 1 || index > list->count) {
+        fprintf(stderr, "Error: invalid course number %d\n", index);
+        return;
+    }
+    for (int i = index - 1; i < list->count - 1; i++) {
+        list->items[i] = list->items[i + 1];
+    }
+    list->count--;
+}
+
 void viewCourseList(CourseList *list) {
     printf("%-10s %-30s %4s %7s %4s %6s\n",
            "Code", "Name", "Sem", "Marks", "Gr", "GP");
