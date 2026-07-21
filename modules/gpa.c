@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "gpa.h"
 
 GpaResult computeGPA(CourseResult results[], int count) {
@@ -115,3 +116,36 @@ void viewRequiredGPA(RequiredGpaResult result) {
     printf("Achievable        : %s\n",
            result.isAchievable ? "Yes" : "No (requires > 4.00)");
 }
+
+/* Feature 008 ─────────────────────────────────────────────────────────── */
+GpaResult computeExpectedGPA(CourseList *completed, CourseList *upcoming) {
+    int total = completed->count + upcoming->count;
+
+    if (total == 0) {
+        GpaResult empty = {0, 0, 0.0, 0.0, 0.0};
+        return empty;
+    }
+
+    CourseResult *merged = (CourseResult *)malloc(total * sizeof(CourseResult));
+    if (!merged) {
+        fprintf(stderr, "Error: failed to allocate for expected GPA\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < completed->count; i++)
+        merged[i] = completed->items[i];
+    for (int i = 0; i < upcoming->count; i++)
+        merged[completed->count + i] = upcoming->items[i];
+
+    GpaResult result = computeGPA(merged, total);
+    free(merged);
+    return result;
+}
+
+void viewExpectedGPA(GpaResult expected) {
+    printf("Projected Courses : %d\n",   expected.courseCount);
+    printf("Projected Credits : %.1f\n", expected.totalCredits);
+    printf("Projected Sum     : %.2f\n", expected.weightedSum);
+    printf("Expected CGPA     : %.2f\n", expected.cgpa);
+}
+
