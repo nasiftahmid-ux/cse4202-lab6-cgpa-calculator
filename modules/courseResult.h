@@ -8,9 +8,8 @@
  * ------------
  * Associates a Course with marks, computed grade, and grade point.
  *
- * Feature 004 — isIncomplete:
- *   When set to 1, the course has not yet been graded.
- *   Incomplete courses are excluded from CGPA computation.
+ * Feature 004 — isIncomplete : 1 = not yet graded; excluded from CGPA.
+ * Feature 005 — semester     : semester number (1-based); default = 1.
  *
  * IUT Grading Scale:
  *   A+ = 4.00 (>= 90)  A  = 3.75 (>= 85)  A- = 3.50 (>= 80)
@@ -23,11 +22,13 @@ typedef struct CourseResult {
     double marks;        /* raw score: 0.0 – 100.0     */
     char   grade[4];     /* letter grade: "A+", "B-", … */
     double gradePoint;   /* grade point:  0.00 – 4.00   */
-    int    isIncomplete; /* 1 = not yet graded (Feat 004) */
+    int    isIncomplete; /* 1 = not yet graded           */
+    int    semester;     /* semester number (Feat 005)   */
 } CourseResult;
 
 CourseResult createCourseResult(Course course, double marks);
-void         markIncomplete(CourseResult *cr);   /* Feature 004 */
+void         markIncomplete(CourseResult *cr);
+void         setSemester(CourseResult *cr, int semester); /* Feature 005 */
 void         viewCourseResult(CourseResult cr);
 
 #endif /* COURSE_RESULT_H */
