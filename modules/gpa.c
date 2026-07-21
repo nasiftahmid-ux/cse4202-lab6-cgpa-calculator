@@ -77,3 +77,9 @@ void viewSemesterGPA(GpaResult gpa, int semester) {
     printf("Weighted Sum : %.2f\n", gpa.weightedSum);
     printf("GPA          : %.2f\n", gpa.cgpa);
 }
+
+/* Feature 006 ─────────────────────────────────────────────────────────── */
+GpaResult computeGPAFromList(CourseList *list) {
+    return computeGPA(list->items, list->count);
+}
+
