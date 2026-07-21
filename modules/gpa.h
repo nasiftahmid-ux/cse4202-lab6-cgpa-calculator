@@ -28,4 +28,31 @@ void      viewSemesterGPA(GpaResult gpa, int semester);
 /* Feature 006 — compute from dynamic list */
 GpaResult computeGPAFromList(CourseList *list);
 
+/*
+ * RequiredGpaResult (Feature 007)
+ * --------------------------------
+ * Given a student's current GPA state and the credits still to be taken,
+ * computes the minimum GPA they must achieve in remaining courses to hit
+ * a target CGPA.
+ *
+ * Formula:
+ *   requiredGPA = (targetCGPA * (current.totalCredits + remainingCredits)
+ *                  - current.weightedSum) / remainingCredits
+ *
+ * isAchievable = 1 when requiredGPA <= 4.00
+ * (negative requiredGPA means the target is already guaranteed)
+ */
+typedef struct RequiredGpaResult {
+    double targetCGPA;
+    double remainingCredits;
+    double requiredGPA;
+    int    isAchievable; /* 1 if requiredGPA <= 4.00 */
+} RequiredGpaResult;
+
+RequiredGpaResult computeRequiredGPA(GpaResult current,
+                                     double remainingCredits,
+                                     double targetCGPA);
+void              viewRequiredGPA(RequiredGpaResult result);
+
 #endif /* GPA_H */
+
