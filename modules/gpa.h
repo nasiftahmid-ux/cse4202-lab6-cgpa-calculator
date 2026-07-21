@@ -2,12 +2,12 @@
 #define GPA_H
 
 #include "courseResult.h"
+#include "courseList.h"   /* Feature 006 */
 
 /*
  * GpaResult
  * ---------
  * Aggregated result of computing the weighted CGPA.
- * Feature 004 — incompleteCount : courses excluded from CGPA.
  */
 typedef struct GpaResult {
     int    courseCount;     /* total courses (including incomplete)  */
@@ -25,4 +25,46 @@ void      viewGPA(GpaResult gpa);
 GpaResult computeSemesterGPA(CourseResult results[], int count, int semester);
 void      viewSemesterGPA(GpaResult gpa, int semester);
 
+/* Feature 006 — compute from dynamic list */
+GpaResult computeGPAFromList(CourseList *list);
+
+/*
+ * RequiredGpaResult (Feature 007)
+ * --------------------------------
+ * Given a student's current GPA state and the credits still to be taken,
+ * computes the minimum GPA they must achieve in remaining courses to hit
+ * a target CGPA.
+ *
+ * Formula:
+ *   requiredGPA = (targetCGPA * (current.totalCredits + remainingCredits)
+ *                  - current.weightedSum) / remainingCredits
+ *
+ * isAchievable = 1 when requiredGPA <= 4.00
+ * (negative requiredGPA means the target is already guaranteed)
+ */
+typedef struct RequiredGpaResult {
+    double targetCGPA;
+    double remainingCredits;
+    double requiredGPA;
+    int    isAchievable; /* 1 if requiredGPA <= 4.00 */
+} RequiredGpaResult;
+
+RequiredGpaResult computeRequiredGPA(GpaResult current,
+                                     double remainingCredits,
+                                     double targetCGPA);
+void              viewRequiredGPA(RequiredGpaResult result);
+
+/*
+ * Feature 008 — Expected CGPA
+ * ----------------------------
+ * Projects the student's final CGPA by combining already-completed courses
+ * with an upcoming CourseList (hypothetical expected results).
+ *
+ * Formula: merge both lists → computeGPA on combined set.
+ */
+GpaResult computeExpectedGPA(CourseList *completed, CourseList *upcoming);
+void      viewExpectedGPA(GpaResult expected);
+
 #endif /* GPA_H */
+
+

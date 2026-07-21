@@ -6,6 +6,7 @@ $Sources   = @(
     "main.c",
     "modules\course.c",
     "modules\courseResult.c",
+    "modules\courseList.c",
     "modules\gpa.c"
 )
 $Flags     = @("-Wall", "-Wextra", "-std=c11", "-Imodules")

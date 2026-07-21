@@ -1,64 +1,55 @@
 #include <stdio.h>
 #include "modules/course.h"
 #include "modules/courseResult.h"
+#include "modules/courseList.h"
 #include "modules/gpa.h"
 
 int main() {
     printf("In IUT, CGPA Matters!\n");
     printf("=====================================\n\n");
 
-    /* ── Feature 001 & 002: Course / CourseResult demo ───────────── */
-    printf("--- Course & Course Result ---\n");
-    Course c1 = createCourse("CSE 4202", "Structured Programming II", 3.0);
-    CourseResult cr1 = createCourseResult(c1, 87.5);
-    viewCourseResult(cr1);
+    /* ── Completed courses ───────────────────────────────────────── */
+    CourseList completed = createCourseList();
+    Course c1 = createCourse("CSE 4202", "Structured Programming II",   3.0);
+    Course c2 = createCourse("MAT 4201", "Engineering Mathematics III",  2.0);
+    Course c3 = createCourse("PHY 4201", "Physics I",                    3.0);
+    Course c4 = createCourse("HUM 4201", "Engineering Ethics",           2.0);
+    CourseResult cr3 = createCourseResult(c3, 91.0); setSemester(&cr3, 2);
+    CourseResult cr4 = createCourseResult(c4, 65.0); setSemester(&cr4, 2);
+    addCourseResult(&completed, createCourseResult(c1, 87.5));
+    addCourseResult(&completed, createCourseResult(c2, 72.0));
+    addCourseResult(&completed, cr3);
+    addCourseResult(&completed, cr4);
 
-    /* ── Build transcript (5 courses, 2 semesters) ───────────────── */
-    Course c2 = createCourse("MAT 4201", "Engineering Mathematics III", 2.0);
-    Course c3 = createCourse("PHY 4201", "Physics I",                   3.0);
-    Course c4 = createCourse("HUM 4201", "Engineering Ethics",          2.0);
-    Course c5 = createCourse("CSE 4204", "Operating Systems",           3.0);
+    printf("--- Completed Courses ---\n\n");
+    viewCourseList(&completed);
+    GpaResult current = computeGPAFromList(&completed);
+    printf("\nCurrent CGPA: %.2f  (Credits: %.0f)\n",
+           current.cgpa, current.totalCredits);
 
-    CourseResult results[5];
-    /* Semester 1 */
-    results[0] = createCourseResult(c1, 87.5);
-    results[1] = createCourseResult(c2, 72.0);
-    /* Semester 2 */
-    results[2] = createCourseResult(c3, 91.0); setSemester(&results[2], 2);
-    results[3] = createCourseResult(c4, 65.0); setSemester(&results[3], 2);
-    /* Semester 2 — incomplete */
-    results[4] = createCourseResult(c5, 0.0);  setSemester(&results[4], 2);
-    markIncomplete(&results[4]);
+    /* ── Feature 007: Required GPA ───────────────────────────────── */
+    printf("\n--- Required GPA to Achieve 3.75 (10 remaining credits) ---\n");
+    RequiredGpaResult req = computeRequiredGPA(current, 10.0, 3.75);
+    viewRequiredGPA(req);
 
-    /* ── Feature 003 & 004: CGPA (incomplete excluded) ───────────── */
-    printf("\n--- Overall CGPA (incomplete excluded) ---\n");
-    printf("\n%-10s %-30s %4s %7s %4s %4s\n",
-           "Code", "Name", "Sem", "Marks", "Gr", "GP");
-    printf("%-10s %-30s %4s %7s %4s %4s\n",
-           "----------","------------------------------","----","-------","----","----");
-    for (int i = 0; i < 5; i++) {
-        if (results[i].isIncomplete)
-            printf("%-10s %-30s %4d %7s %4s %4s\n",
-                   results[i].course.code, results[i].course.name,
-                   results[i].semester, "---", "INC", "---");
-        else
-            printf("%-10s %-30s %4d %7.2f %4s %4.2f\n",
-                   results[i].course.code, results[i].course.name,
-                   results[i].semester, results[i].marks,
-                   results[i].grade, results[i].gradePoint);
-    }
-    printf("\n");
-    GpaResult overall = computeGPA(results, 5);
-    viewGPA(overall);
+    /* ── Feature 008: Expected CGPA ──────────────────────────────── */
+    printf("\n--- Expected CGPA Calculator ---\n");
+    CourseList upcoming = createCourseList();
+    Course c5 = createCourse("CSE 4206", "Database Systems",    3.0);
+    Course c6 = createCourse("CSE 4208", "Computer Networks",   3.0);
+    Course c7 = createCourse("MAT 4203", "Numerical Methods",   2.0);
+    /* Optimistic scenario: A+, A, B+ */
+    addCourseResult(&upcoming, createCourseResult(c5, 92.0)); /* A+ 4.00 */
+    addCourseResult(&upcoming, createCourseResult(c6, 86.0)); /* A  3.75 */
+    addCourseResult(&upcoming, createCourseResult(c7, 76.0)); /* B+ 3.25 */
 
-    /* ── Feature 005: Per-semester GPA ───────────────────────────── */
-    printf("\n--- Semester 1 GPA ---\n");
-    GpaResult s1 = computeSemesterGPA(results, 5, 1);
-    viewSemesterGPA(s1, 1);
+    printf("\nUpcoming courses (expected marks):\n\n");
+    viewCourseList(&upcoming);
+    printf("\nProjected result if these marks are achieved:\n");
+    GpaResult projected = computeExpectedGPA(&completed, &upcoming);
+    viewExpectedGPA(projected);
 
-    printf("\n--- Semester 2 GPA (incomplete excluded) ---\n");
-    GpaResult s2 = computeSemesterGPA(results, 5, 2);
-    viewSemesterGPA(s2, 2);
-
+    freeCourseList(&completed);
+    freeCourseList(&upcoming);
     return 0;
 }

@@ -10,6 +10,9 @@ declare -a TEST_FILES=(
     "tests/test_gpa.c"
     "tests/test_incomplete.c"
     "tests/test_semester_gpa.c"
+    "tests/test_course_list.c"
+    "tests/test_required_gpa.c"
+    "tests/test_expected_gpa.c"
 )
 
 declare -A TEST_MODULES=(
@@ -18,6 +21,9 @@ declare -A TEST_MODULES=(
     ["tests/test_gpa.c"]="modules/course.c modules/courseResult.c modules/gpa.c"
     ["tests/test_incomplete.c"]="modules/course.c modules/courseResult.c modules/gpa.c"
     ["tests/test_semester_gpa.c"]="modules/course.c modules/courseResult.c modules/gpa.c"
+    ["tests/test_course_list.c"]="modules/course.c modules/courseResult.c modules/courseList.c modules/gpa.c"
+    ["tests/test_required_gpa.c"]="modules/course.c modules/courseResult.c modules/courseList.c modules/gpa.c"
+    ["tests/test_expected_gpa.c"]="modules/course.c modules/courseResult.c modules/courseList.c modules/gpa.c"
 )
 
 total_suites=0
