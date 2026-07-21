@@ -7,11 +7,13 @@ FLAGS="-Wall -std=c11 -Imodules"
 declare -a TEST_FILES=(
     "tests/test_course.c"
     "tests/test_course_result.c"
+    "tests/test_gpa.c"
 )
 
 declare -A TEST_MODULES=(
     ["tests/test_course.c"]="modules/course.c"
     ["tests/test_course_result.c"]="modules/course.c modules/courseResult.c"
+    ["tests/test_gpa.c"]="modules/course.c modules/courseResult.c modules/gpa.c"
 )
 
 total_suites=0
