@@ -11,7 +11,8 @@ $Tests = @(
     @{ File = "tests\test_course.c";        Bin = "test_course.exe";        Modules = @("modules\course.c") },
     @{ File = "tests\test_course_result.c"; Bin = "test_course_result.exe"; Modules = @("modules\course.c", "modules\courseResult.c") },
     @{ File = "tests\test_gpa.c";           Bin = "test_gpa.exe";           Modules = @("modules\course.c", "modules\courseResult.c", "modules\gpa.c") },
-    @{ File = "tests\test_incomplete.c";    Bin = "test_incomplete.exe";    Modules = @("modules\course.c", "modules\courseResult.c", "modules\gpa.c") }
+    @{ File = "tests\test_incomplete.c";    Bin = "test_incomplete.exe";    Modules = @("modules\course.c", "modules\courseResult.c", "modules\gpa.c") },
+    @{ File = "tests\test_semester_gpa.c";  Bin = "test_semester_gpa.exe";  Modules = @("modules\course.c", "modules\courseResult.c", "modules\gpa.c") }
 )
 
 $totalSuites  = 0
