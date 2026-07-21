@@ -32,21 +32,27 @@ CourseResult createCourseResult(Course course, double marks) {
     CourseResult cr;
     cr.course       = course;
     cr.marks        = marks;
-    cr.isIncomplete = 0;          /* default: complete (Feature 004) */
+    cr.isIncomplete = 0;   /* default: complete  */
+    cr.semester     = 1;   /* default: semester 1 (Feature 005) */
     getGrade(marks, cr.grade);
     cr.gradePoint   = getGradePoint(marks);
     return cr;
 }
 
-/* Feature 004: mark a course as not yet graded */
 void markIncomplete(CourseResult *cr) {
     cr->isIncomplete = 1;
+}
+
+/* Feature 005 */
+void setSemester(CourseResult *cr, int semester) {
+    cr->semester = semester;
 }
 
 void viewCourseResult(CourseResult cr) {
     printf("Code       : %s\n",   cr.course.code);
     printf("Name       : %s\n",   cr.course.name);
     printf("Credit     : %.1f\n", cr.course.credit);
+    printf("Semester   : %d\n",   cr.semester);
     if (cr.isIncomplete) {
         printf("Status     : Incomplete (excluded from CGPA)\n");
     } else {
