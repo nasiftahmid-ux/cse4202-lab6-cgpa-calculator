@@ -3,6 +3,8 @@
 #include "modules/courseResult.h"
 #include "modules/courseList.h"
 #include "modules/gpa.h"
+#include "modules/student.h"
+#include "modules/studentList.h"
 
 int main() {
     printf("In IUT, CGPA Matters!\n");
@@ -49,7 +51,37 @@ int main() {
     GpaResult projected = computeExpectedGPA(&completed, &upcoming);
     viewExpectedGPA(projected);
 
+    /* ── Feature 009: Multi-student transcript handling ──────────────── */
+    printf("\n--- Multi-Student Demo ---\n");
+    StudentList students = createStudentList();
+
+    Student alice = createStudent("S001", "Alice");
+    Student bob = createStudent("S002", "Bob");
+    Student cara = createStudent("S003", "Cara");
+
+    addCourseToStudent(&alice, createCourseResult(createCourse("CSE 4202", "Structured Programming II", 3.0), 90.0));
+    addCourseToStudent(&alice, createCourseResult(createCourse("MAT 4201", "Engineering Mathematics III", 2.0), 60.0));
+    computeStudentGPA(&alice);
+
+    addCourseToStudent(&bob, createCourseResult(createCourse("CSE 4202", "Structured Programming II", 3.0), 80.0));
+    addCourseToStudent(&bob, createCourseResult(createCourse("MAT 4201", "Engineering Mathematics III", 2.0), 70.0));
+    computeStudentGPA(&bob);
+
+    addCourseToStudent(&cara, createCourseResult(createCourse("PHY 4201", "Physics I", 3.0), 95.0));
+    computeStudentGPA(&cara);
+
+    addStudent(&students, alice);
+    addStudent(&students, bob);
+    addStudent(&students, cara);
+    viewStudentList(&students);
+
+    /* ── Feature 010: Ranking ─────────────────────────────────────────── */
+    printf("\n--- Student Ranking ---\n");
+    rankStudentsByCGPA(&students);
+    viewRankingTable(&students);
+
     freeCourseList(&completed);
     freeCourseList(&upcoming);
+    freeStudentList(&students);
     return 0;
 }
