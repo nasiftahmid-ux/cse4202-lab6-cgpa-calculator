@@ -2,12 +2,6 @@
 #include <string.h>
 #include "courseResult.h"
 
-/*
- * getGrade / getGradePoint
- * ------------------------
- * Internal helpers that map a marks score to the IUT letter grade and
- * grade point using a cascading if-else chain matching the official scale.
- */
 static void getGrade(double marks, char grade[]) {
     if      (marks >= 90.0) strcpy(grade, "A+");
     else if (marks >= 85.0) strcpy(grade, "A");
@@ -34,22 +28,30 @@ static double getGradePoint(double marks) {
     else                    return 0.00;
 }
 
-/* Public API ---------------------------------------------------------------- */
-
 CourseResult createCourseResult(Course course, double marks) {
     CourseResult cr;
-    cr.course = course;
-    cr.marks  = marks;
+    cr.course       = course;
+    cr.marks        = marks;
+    cr.isIncomplete = 0;          /* default: complete (Feature 004) */
     getGrade(marks, cr.grade);
-    cr.gradePoint = getGradePoint(marks);
+    cr.gradePoint   = getGradePoint(marks);
     return cr;
 }
 
+/* Feature 004: mark a course as not yet graded */
+void markIncomplete(CourseResult *cr) {
+    cr->isIncomplete = 1;
+}
+
 void viewCourseResult(CourseResult cr) {
-    printf("Code       : %s\n",  cr.course.code);
-    printf("Name       : %s\n",  cr.course.name);
+    printf("Code       : %s\n",   cr.course.code);
+    printf("Name       : %s\n",   cr.course.name);
     printf("Credit     : %.1f\n", cr.course.credit);
-    printf("Marks      : %.2f\n", cr.marks);
-    printf("Grade      : %s\n",  cr.grade);
-    printf("Grade Point: %.2f\n", cr.gradePoint);
+    if (cr.isIncomplete) {
+        printf("Status     : Incomplete (excluded from CGPA)\n");
+    } else {
+        printf("Marks      : %.2f\n", cr.marks);
+        printf("Grade      : %s\n",   cr.grade);
+        printf("Grade Point: %.2f\n", cr.gradePoint);
+    }
 }
