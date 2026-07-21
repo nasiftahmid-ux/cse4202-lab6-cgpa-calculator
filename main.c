@@ -75,6 +75,11 @@ int main() {
     addStudent(&students, cara);
     viewStudentList(&students);
 
+    /* ── Feature 010: Ranking ─────────────────────────────────────────── */
+    printf("\n--- Student Ranking ---\n");
+    rankStudentsByCGPA(&students);
+    viewRankingTable(&students);
+
     freeCourseList(&completed);
     freeCourseList(&upcoming);
     freeStudentList(&students);
