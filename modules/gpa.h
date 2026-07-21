@@ -6,33 +6,21 @@
 /*
  * GpaResult
  * ---------
- * Aggregated result of computing the weighted CGPA across a set of courses.
+ * Aggregated result of computing the weighted CGPA.
  *
- * Formula:
- *   weightedSum  = Σ (gradePoint_i × credit_i)
- *   totalCredits = Σ credit_i
- *   cgpa         = weightedSum / totalCredits   (0.00 if no credits)
+ * Feature 004 — incompleteCount:
+ *   Tracks how many courses were skipped (isIncomplete == 1).
+ *   Only completed courses contribute to totalCredits / weightedSum / cgpa.
  */
 typedef struct GpaResult {
-    int    courseCount;   /* number of courses included in calculation  */
-    double totalCredits;  /* Σ credit                                    */
-    double weightedSum;   /* Σ (gradePoint × credit)                     */
-    double cgpa;          /* final CGPA: weightedSum / totalCredits       */
+    int    courseCount;     /* total courses (including incomplete)  */
+    int    incompleteCount; /* courses excluded from CGPA (Feat 004) */
+    double totalCredits;    /* Σ credit (completed courses only)      */
+    double weightedSum;     /* Σ (gradePoint × credit) completed      */
+    double cgpa;            /* weightedSum / totalCredits              */
 } GpaResult;
 
-/*
- * computeGPA
- * ----------
- * Computes the weighted CGPA from an array of CourseResult.
- * Returns a GpaResult with cgpa = 0.00 when count <= 0 or totalCredits == 0.
- */
 GpaResult computeGPA(CourseResult results[], int count);
-
-/*
- * viewGPA
- * -------
- * Prints a formatted CGPA summary to stdout.
- */
-void viewGPA(GpaResult gpa);
+void      viewGPA(GpaResult gpa);
 
 #endif /* GPA_H */
