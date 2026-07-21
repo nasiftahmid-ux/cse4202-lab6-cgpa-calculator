@@ -69,8 +69,8 @@ bash tests/test.sh
 |---|---------|--------|--------|
 | 001 | Course module | ✅ Done | `feature001` → `dev` |
 | 002 | CourseResult module | ✅ Done | `feature002` → `dev` |
-| 003 | CGPA Calculator | ⏳ Next | `feature003` |
-| 004 | Incomplete Courses | ⏳ Planned | `feature004` |
+| 003 | CGPA Calculator | ✅ Done | `feature003` → `dev` |
+| 004 | Incomplete Courses | ⏳ Next | `feature004` |
 | 005 | Semester GPA | ⏳ Planned | `feature005` |
 | 006 | Dynamic Course List | ⏳ Planned | `feature006` |
 | 007 | Required GPA | ⏳ Planned | `feature007` |
