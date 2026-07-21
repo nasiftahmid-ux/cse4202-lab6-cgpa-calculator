@@ -2,12 +2,12 @@
 #define GPA_H
 
 #include "courseResult.h"
+#include "courseList.h"   /* Feature 006 */
 
 /*
  * GpaResult
  * ---------
  * Aggregated result of computing the weighted CGPA.
- * Feature 004 — incompleteCount : courses excluded from CGPA.
  */
 typedef struct GpaResult {
     int    courseCount;     /* total courses (including incomplete)  */
@@ -24,5 +24,8 @@ void      viewGPA(GpaResult gpa);
 /* Feature 005 — per-semester GPA */
 GpaResult computeSemesterGPA(CourseResult results[], int count, int semester);
 void      viewSemesterGPA(GpaResult gpa, int semester);
+
+/* Feature 006 — compute from dynamic list */
+GpaResult computeGPAFromList(CourseList *list);
 
 #endif /* GPA_H */
