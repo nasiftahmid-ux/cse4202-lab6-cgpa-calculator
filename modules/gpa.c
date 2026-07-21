@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "gpa.h"
 
 GpaResult computeGPA(CourseResult results[], int count) {
