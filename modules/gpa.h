@@ -54,5 +54,17 @@ RequiredGpaResult computeRequiredGPA(GpaResult current,
                                      double targetCGPA);
 void              viewRequiredGPA(RequiredGpaResult result);
 
+/*
+ * Feature 008 — Expected CGPA
+ * ----------------------------
+ * Projects the student's final CGPA by combining already-completed courses
+ * with an upcoming CourseList (hypothetical expected results).
+ *
+ * Formula: merge both lists → computeGPA on combined set.
+ */
+GpaResult computeExpectedGPA(CourseList *completed, CourseList *upcoming);
+void      viewExpectedGPA(GpaResult expected);
+
 #endif /* GPA_H */
+
 
