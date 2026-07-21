@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "course.h"
+#include "../modules/course.h"
 
 int testCourseCode()
 {
