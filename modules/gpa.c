@@ -83,3 +83,35 @@ GpaResult computeGPAFromList(CourseList *list) {
     return computeGPA(list->items, list->count);
 }
 
+/* Feature 007 ─────────────────────────────────────────────────────────── */
+RequiredGpaResult computeRequiredGPA(GpaResult current,
+                                     double remainingCredits,
+                                     double targetCGPA) {
+    RequiredGpaResult result;
+    result.targetCGPA       = targetCGPA;
+    result.remainingCredits = remainingCredits;
+    result.requiredGPA      = 0.0;
+    result.isAchievable     = 0;
+
+    if (remainingCredits <= 0.0) {
+        result.requiredGPA  = -1.0; /* undefined */
+        return result;
+    }
+
+    double totalAfter      = current.totalCredits + remainingCredits;
+    result.requiredGPA     = (targetCGPA * totalAfter - current.weightedSum)
+                             / remainingCredits;
+    result.isAchievable    = (result.requiredGPA <= 4.00);
+    return result;
+}
+
+void viewRequiredGPA(RequiredGpaResult result) {
+    printf("Target CGPA       : %.2f\n", result.targetCGPA);
+    printf("Remaining Credits : %.1f\n", result.remainingCredits);
+    if (result.requiredGPA <= 0.0)
+        printf("Required GPA      : Already guaranteed\n");
+    else
+        printf("Required GPA      : %.2f\n", result.requiredGPA);
+    printf("Achievable        : %s\n",
+           result.isAchievable ? "Yes" : "No (requires > 4.00)");
+}
