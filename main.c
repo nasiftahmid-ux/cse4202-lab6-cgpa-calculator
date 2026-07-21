@@ -6,58 +6,183 @@
 #include "modules/student.h"
 #include "modules/studentList.h"
 
-int main() {
-    printf("In IUT, CGPA Matters!\n");
-    printf("=====================================\n\n");
+/*
+ * Interactive console menu (Feature 006 style).
+ *
+ * Course and CourseResult are fused in this project's design (a
+ * CourseResult owns its Course directly, rather than pointing into a
+ * separate array), so "Add/Edit/Delete/View Course" and
+ * "Add/Edit/Delete/View Course Result" from the lab manual collapse
+ * into a single set of course-result operations here.
+ */
 
-    /* ── Completed courses ───────────────────────────────────────── */
-    CourseList completed = createCourseList();
-    Course c1 = createCourse("CSE 4202", "Structured Programming II",   3.0);
-    Course c2 = createCourse("MAT 4201", "Engineering Mathematics III",  2.0);
-    Course c3 = createCourse("PHY 4201", "Physics I",                    3.0);
-    Course c4 = createCourse("HUM 4201", "Engineering Ethics",           2.0);
-    CourseResult cr3 = createCourseResult(c3, 91.0); setSemester(&cr3, 2);
-    CourseResult cr4 = createCourseResult(c4, 65.0); setSemester(&cr4, 2);
-    addCourseResult(&completed, createCourseResult(c1, 87.5));
-    addCourseResult(&completed, createCourseResult(c2, 72.0));
-    addCourseResult(&completed, cr3);
-    addCourseResult(&completed, cr4);
+static void showMenu(void) {
+    printf("\n=====================================\n");
+    printf("        CGPA Calculator Menu\n");
+    printf("=====================================\n");
+    printf("1. Add Course Result\n");
+    printf("2. Edit Course Result\n");
+    printf("3. Delete Course Result\n");
+    printf("4. View Marksheet\n");
+    printf("5. Required GPA Calculator\n");
+    printf("6. Expected CGPA Calculator\n");
+    printf("7. Student Ranking Demo\n");
+    printf("8. Exit\n");
+    printf("Enter Choice: ");
+}
 
-    printf("--- Completed Courses ---\n\n");
-    viewCourseList(&completed);
-    GpaResult current = computeGPAFromList(&completed);
-    printf("\nCurrent CGPA: %.2f  (Credits: %.0f)\n",
+/* Reads one CourseResult's fields from stdin. */
+static CourseResult readCourseResultFromInput(void) {
+    char code[16];
+    char name[100];
+    double credit;
+    int semester;
+    int completedChoice;
+
+    printf("Course Code: ");
+    scanf("%15s", code);
+    printf("Course Name: ");
+    scanf(" %99[^\n]", name);
+    printf("Credit: ");
+    scanf("%lf", &credit);
+    printf("Semester: ");
+    scanf("%d", &semester);
+
+    Course course = createCourse(code, name, credit);
+
+    printf("Completed?\n  1. Yes\n  2. No (incomplete)\n Enter Choice: ");
+    scanf("%d", &completedChoice);
+
+    CourseResult cr;
+    if (completedChoice == 2) {
+        cr = createCourseResult(course, 0.0);
+        markIncomplete(&cr);
+    } else {
+        double marks;
+        printf("Marks (0-100): ");
+        scanf("%lf", &marks);
+        cr = createCourseResult(course, marks);
+    }
+    setSemester(&cr, semester);
+    return cr;
+}
+
+static void addCourseResultMenu(CourseList *list) {
+    printf("\n--- Add Course Result ---\n");
+    CourseResult cr = readCourseResultFromInput();
+    addCourseResult(list, cr);
+    printf("Added. This course is now #%d in the list.\n", list->count);
+}
+
+static void editCourseResultMenu(CourseList *list) {
+    if (list->count == 0) {
+        printf("\nNo course results yet -- nothing to edit.\n");
+        return;
+    }
+    printf("\n--- Edit Course Result ---\n");
+    viewCourseList(list);
+    int index;
+    printf("\nCourse Result Number to edit: ");
+    scanf("%d", &index);
+    CourseResult cr = readCourseResultFromInput();
+    editCourseResultAt(list, index, cr);
+}
+
+static void deleteCourseResultMenu(CourseList *list) {
+    if (list->count == 0) {
+        printf("\nNo course results yet -- nothing to delete.\n");
+        return;
+    }
+    printf("\n--- Delete Course Result ---\n");
+    viewCourseList(list);
+    int index;
+    printf("\nCourse Result Number to delete: ");
+    scanf("%d", &index);
+    deleteCourseResultAt(list, index);
+    printf("Deleted.\n");
+}
+
+static void viewMarksheetMenu(CourseList *list) {
+    printf("\n--- Marksheet ---\n\n");
+    if (list->count == 0) {
+        printf("No course results yet.\n");
+        return;
+    }
+    viewCourseList(list);
+
+    printf("\n");
+    for (int semester = 1; semester <= 8; semester++) {
+        GpaResult semGpa = computeSemesterGPA(list->items, list->count, semester);
+        if (semGpa.courseCount > 0) {
+            printf("Semester %d GPA: %.2f\n", semester, semGpa.cgpa);
+        }
+    }
+
+    GpaResult overall = computeGPAFromList(list);
+    printf("\nOverall CGPA: %.2f  (Credits: %.1f)\n",
+           overall.cgpa, overall.totalCredits);
+}
+
+static void requiredGpaMenu(CourseList *list) {
+    printf("\n--- Required GPA Calculator ---\n");
+    GpaResult current = computeGPAFromList(list);
+    printf("Current CGPA: %.2f (Credits so far: %.1f)\n",
            current.cgpa, current.totalCredits);
 
-    /* ── Feature 007: Required GPA ───────────────────────────────── */
-    printf("\n--- Required GPA to Achieve 3.75 (10 remaining credits) ---\n");
-    RequiredGpaResult req = computeRequiredGPA(current, 10.0, 3.75);
-    viewRequiredGPA(req);
+    double targetCGPA, remainingCredits;
+    printf("Target CGPA: ");
+    scanf("%lf", &targetCGPA);
+    printf("Remaining credits: ");
+    scanf("%lf", &remainingCredits);
 
-    /* ── Feature 008: Expected CGPA ──────────────────────────────── */
+    RequiredGpaResult required = computeRequiredGPA(current, remainingCredits, targetCGPA);
+    viewRequiredGPA(required);
+}
+
+static void expectedGpaMenu(CourseList *list) {
     printf("\n--- Expected CGPA Calculator ---\n");
-    CourseList upcoming = createCourseList();
-    Course c5 = createCourse("CSE 4206", "Database Systems",    3.0);
-    Course c6 = createCourse("CSE 4208", "Computer Networks",   3.0);
-    Course c7 = createCourse("MAT 4203", "Numerical Methods",   2.0);
-    /* Optimistic scenario: A+, A, B+ */
-    addCourseResult(&upcoming, createCourseResult(c5, 92.0)); /* A+ 4.00 */
-    addCourseResult(&upcoming, createCourseResult(c6, 86.0)); /* A  3.75 */
-    addCourseResult(&upcoming, createCourseResult(c7, 76.0)); /* B+ 3.25 */
+    int upcomingCount;
+    printf("How many upcoming courses? ");
+    scanf("%d", &upcomingCount);
 
-    printf("\nUpcoming courses (expected marks):\n\n");
-    viewCourseList(&upcoming);
+    CourseList upcoming = createCourseList();
+    for (int i = 0; i < upcomingCount; i++) {
+        printf("\nUpcoming course #%d\n", i + 1);
+        char code[16], name[100];
+        double credit, expectedMarks;
+        printf("Course Code: ");
+        scanf("%15s", code);
+        printf("Course Name: ");
+        scanf(" %99[^\n]", name);
+        printf("Credit: ");
+        scanf("%lf", &credit);
+        printf("Expected Marks (0-100): ");
+        scanf("%lf", &expectedMarks);
+        Course course = createCourse(code, name, credit);
+        addCourseResult(&upcoming, createCourseResult(course, expectedMarks));
+    }
+
     printf("\nProjected result if these marks are achieved:\n");
-    GpaResult projected = computeExpectedGPA(&completed, &upcoming);
+    GpaResult projected = computeExpectedGPA(list, &upcoming);
     viewExpectedGPA(projected);
 
-    /* ── Feature 009: Multi-student transcript handling ──────────────── */
-    printf("\n--- Multi-Student Demo ---\n");
+    freeCourseList(&upcoming);
+}
+
+/*
+ * Multi-student ranking demo (Features 009/010).
+ * The lab manual explicitly treats wiring the student module into the
+ * interactive menu as an optional extension, not required checkpoint
+ * code -- so this stays a small self-contained sample, same spirit as
+ * the manual's own hardcoded main.c demos for those features.
+ */
+static void studentRankingDemoMenu(void) {
+    printf("\n--- Student Ranking Demo ---\n");
     StudentList students = createStudentList();
 
     Student alice = createStudent("S001", "Alice");
-    Student bob = createStudent("S002", "Bob");
-    Student cara = createStudent("S003", "Cara");
+    Student bob   = createStudent("S002", "Bob");
+    Student cara  = createStudent("S003", "Cara");
 
     addCourseToStudent(&alice, createCourseResult(createCourse("CSE 4202", "Structured Programming II", 3.0), 90.0));
     addCourseToStudent(&alice, createCourseResult(createCourse("MAT 4201", "Engineering Mathematics III", 2.0), 60.0));
@@ -75,13 +200,36 @@ int main() {
     addStudent(&students, cara);
     viewStudentList(&students);
 
-    /* ── Feature 010: Ranking ─────────────────────────────────────────── */
-    printf("\n--- Student Ranking ---\n");
     rankStudentsByCGPA(&students);
+    printf("\nRanked:\n");
     viewRankingTable(&students);
 
-    freeCourseList(&completed);
-    freeCourseList(&upcoming);
     freeStudentList(&students);
+}
+
+int main(void) {
+    printf("In IUT, CGPA Matters!\n");
+
+    CourseList courses = createCourseList();
+    int choice = 0;
+
+    while (choice != 8) {
+        showMenu();
+        if (scanf("%d", &choice) != 1) break;
+
+        switch (choice) {
+            case 1: addCourseResultMenu(&courses);      break;
+            case 2: editCourseResultMenu(&courses);     break;
+            case 3: deleteCourseResultMenu(&courses);   break;
+            case 4: viewMarksheetMenu(&courses);        break;
+            case 5: requiredGpaMenu(&courses);          break;
+            case 6: expectedGpaMenu(&courses);          break;
+            case 7: studentRankingDemoMenu();           break;
+            case 8: printf("\nGoodbye!\n");             break;
+            default: printf("\nInvalid choice.\n");     break;
+        }
+    }
+
+    freeCourseList(&courses);
     return 0;
 }
