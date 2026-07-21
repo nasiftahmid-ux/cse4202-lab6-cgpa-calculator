@@ -5,7 +5,8 @@ $Output    = "calculator.exe"
 $Sources   = @(
     "main.c",
     "modules\course.c",
-    "modules\courseResult.c"
+    "modules\courseResult.c",
+    "modules\gpa.c"
 )
 $Flags     = @("-Wall", "-Wextra", "-std=c11", "-Imodules")
 
