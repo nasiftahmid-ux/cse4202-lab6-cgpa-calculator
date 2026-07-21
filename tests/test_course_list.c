@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "../modules/course.h"
 #include "../modules/courseResult.h"
 #include "../modules/courseList.h"
@@ -103,6 +104,51 @@ static int testListWithIncomplete(void) {
     return ok;
 }
 
+static int testEditCourseResultAt(void) {
+    CourseList list = createCourseList();
+    Course c1 = createCourse("C1", "A", 3.0);
+    Course c2 = createCourse("C2", "B", 2.0);
+    addCourseResult(&list, createCourseResult(c1, 60.0));
+    /* Edit item 1 (1-based) to a different course/marks */
+    editCourseResultAt(&list, 1, createCourseResult(c2, 95.0));
+    CourseResult edited = getCourseResult(&list, 0);
+    int ok = list.count == 1
+          && strcmp(edited.course.code, "C2") == 0
+          && dEq(edited.marks, 95.0);
+    freeCourseList(&list);
+    return ok;
+}
+
+static int testDeleteCourseResultAt(void) {
+    CourseList list = createCourseList();
+    Course c1 = createCourse("C1", "A", 3.0);
+    Course c2 = createCourse("C2", "B", 2.0);
+    Course c3 = createCourse("C3", "C", 1.0);
+    addCourseResult(&list, createCourseResult(c1, 60.0));
+    addCourseResult(&list, createCourseResult(c2, 70.0));
+    addCourseResult(&list, createCourseResult(c3, 80.0));
+    /* Delete item 2 (1-based) -> C1, C3 should remain, in order */
+    deleteCourseResultAt(&list, 2);
+    int ok = list.count == 2
+          && strcmp(getCourseResult(&list, 0).course.code, "C1") == 0
+          && strcmp(getCourseResult(&list, 1).course.code, "C3") == 0;
+    freeCourseList(&list);
+    return ok;
+}
+
+static int testEditDeleteInvalidIndexIsSafe(void) {
+    CourseList list = createCourseList();
+    Course c1 = createCourse("C1", "A", 3.0);
+    addCourseResult(&list, createCourseResult(c1, 60.0));
+    editCourseResultAt(&list, 0, createCourseResult(c1, 99.0));   /* out of range: too low */
+    editCourseResultAt(&list, 5, createCourseResult(c1, 99.0));   /* out of range: too high */
+    deleteCourseResultAt(&list, 0);
+    deleteCourseResultAt(&list, 5);
+    int ok = list.count == 1 && dEq(getCourseResult(&list, 0).marks, 60.0);
+    freeCourseList(&list);
+    return ok;
+}
+
 int main(void) {
     printf("Dynamic Course List module tests\n");
     printf("─────────────────────────────────────\n");
@@ -113,6 +159,9 @@ int main(void) {
     check("freeCourseList nulls pointer and resets",    testFree());
     check("computeGPAFromList correct CGPA",            testComputeGPAFromList());
     check("Incomplete items excluded in list GPA",      testListWithIncomplete());
+    check("editCourseResultAt replaces item in place",  testEditCourseResultAt());
+    check("deleteCourseResultAt removes and shifts",    testDeleteCourseResultAt());
+    check("Invalid index is a no-op, not a crash",      testEditDeleteInvalidIndexIsSafe());
     printf("─────────────────────────────────────\n");
     printf("Passed %d/%d tests\n", passed, total);
     return (passed == total) ? 0 : 1;
